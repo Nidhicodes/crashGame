@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useWallet } from "./use-wallet"
+import { getProfile } from "@/lib/indexedDb";
 
 interface GameState {
   phase: "betting" | "flying" | "crashed"
@@ -42,7 +43,7 @@ export function useGameState() {
     activePlayers: [],
     playerBet: null,
   })
-  const {balance} = useWallet();
+  const {balance, wallet} = useWallet();
 
   
   const [playerStats, setPlayerStats] = useState<PlayerStats>({
@@ -63,6 +64,22 @@ export function useGameState() {
       }))
     }
   }, [balance])
+
+  // Sync tokens from IndexedDB profile after wallet connects
+  useEffect(() => {
+    async function syncTokens() {
+      if (wallet?.address) {
+        const profile = await getProfile(wallet.address);
+        if (profile && typeof profile.tokens === "number") {
+          setPlayerStats((prev) => ({
+            ...prev,
+            tokens: profile.tokens,
+          }));
+        }
+      }
+    }
+    syncTokens();
+  }, [wallet?.address]);
 
   const [gameHistory, setGameHistory] = useState<GameResult[]>([
     { id: "1", multiplier: 2.34, timestamp: new Date(Date.now() - 60000), players: 12 },

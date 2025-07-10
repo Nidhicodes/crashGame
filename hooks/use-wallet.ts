@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react"
 import { formatEther } from "viem"
 import { ethers } from "ethers"
+import { getProfile, setProfile } from "@/lib/indexedDb";
 
 interface Wallet {
   address: string | null
@@ -77,6 +78,25 @@ export function useWallet() {
         })
         const addr = accounts?.[0] || accounts?.address
         await fetchData(addr, provider)
+        let profile = await getProfile(addr);
+        const balance = await provider.request({
+          method: "eth_getBalance",
+          params: [addr, "latest"],
+        });
+        const balanceNum = Number(formatEther(BigInt(balance)));
+        if (!profile) {
+          await setProfile({
+            address: addr,
+            lastLogin: new Date().toISOString(),
+            tokens: balanceNum,
+            points: 0,
+            totalWon: 0,
+            rank: 0,
+          });
+        } else {
+          // Optionally update lastLogin and tokens
+          await setProfile({ ...profile, lastLogin: new Date().toISOString(), tokens: balanceNum });
+        }
       } catch (err) {
         console.error("Qsafe connection error:", err)
       } finally {
@@ -109,6 +129,24 @@ export function useWallet() {
           if (accounts?.length > 0) {
             const addr = accounts[0]
             await fetchData(addr, provider)
+            let profile = await getProfile(addr);
+            const balance = await provider.request({
+              method: "eth_getBalance",
+              params: [addr, "latest"],
+            });
+            const balanceNum = Number(formatEther(BigInt(balance)));
+            if (!profile) {
+              await setProfile({
+                address: addr,
+                lastLogin: new Date().toISOString(),
+                tokens: balanceNum,
+                points: 0,
+                totalWon: 0,
+                rank: 0,
+              });
+            } else {
+              await setProfile({ ...profile, lastLogin: new Date().toISOString(), tokens: balanceNum });
+            }
           }
         } catch (err) {
           console.error("Error fetching accounts:", err)
