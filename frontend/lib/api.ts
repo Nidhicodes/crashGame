@@ -30,3 +30,13 @@ export const saveGameResult = async (data: any) => {
   const response = await api.post('/games', data);
   return response.data;
 };
+
+export const getDailyStats = async () => {
+    const response = await api.get('/stats/daily');
+    return response.data;
+};
+
+export const getWeeklyStats = async () => {
+    const response = await api.get('/stats/weekly');
+    return response.data;
+};

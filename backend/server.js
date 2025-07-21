@@ -57,9 +57,21 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
+const http = require('http');
+const setupWebSockets = require('./src/websockets/index.js').setupWebSockets;
+const { startGameLoop } = require('./src/game/engine');
+const { scheduleDailyAggregation, scheduleWeeklyAggregation } = require('./src/cron/aggregation');
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+
+const server = http.createServer(app);
+setupWebSockets(server);
+
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  startGameLoop();
+  scheduleDailyAggregation();
+  scheduleWeeklyAggregation();
 });
 
-module.exports = app;
+module.exports = { app, server };

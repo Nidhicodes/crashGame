@@ -10,15 +10,46 @@ import { Rocket, TrendingUp, Trophy, Coins, Zap, Crown, Users, Copy, Gift, Exter
 import { GameCanvas } from "@/components/game-canvas"
 import { Scoreboard } from "@/components/scoreboard"
 import { GameHistory } from "@/components/game-history"
+import { StatsView } from "@/components/ui/stats-view"
+import { useEffect } from "react"
 import { useGameState } from "@/hooks/use-game-state"
 import { useWallet } from "@/hooks/use-wallet"
+import { getSocket } from "@/lib/websocket"
 
 export default function CrashGame() {
-  const { gameState, playerStats, gameHistory, placeBet, cashOut, claimFaucet, convertTokensToPoints } = useGameState()
+  const { gameState, playerStats, gameHistory, placeBet, cashOut, claimFaucet, convertTokensToPoints, setGameState } = useGameState()
 
   const { wallet, connectWallet, isConnected } = useWallet()
   const [betAmount, setBetAmount] = useState("")
   const [convertAmount, setConvertAmount] = useState("")
+
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'gameState') {
+          setGameState((prevState) => ({ ...prevState, ...data.payload }));
+        }
+        if (data.type === 'crash') {
+          setGameState((prevState) => ({
+            ...prevState,
+            phase: 'crashed',
+            currentMultiplier: data.payload.multiplier,
+          }));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    return () => {
+      if (socket) {
+        socket.onmessage = null;
+      }
+    };
+  }, [setGameState]);
   
   // Referral system state
   const [referralCode] = useState(`QRN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`)
@@ -292,95 +323,7 @@ export default function CrashGame() {
               </CardContent>
             </Card>
 
-            {/* Referral System Card */}
-            <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-purple-200">
-                  <Users className="w-6 h-6 text-purple-400" />
-                  Referral Rewards
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Your Referral Code */}
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-purple-200">Your Referral Code</label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={referralCode}
-                      readOnly
-                      className="bg-black/40 border-purple-500/30 text-white font-mono"
-                    />
-                    <Button
-                      onClick={handleCopyReferralCode}
-                      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-3"
-                    >
-                      {copySuccess ? (
-                        <span className="text-green-400">✓</span>
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-purple-400">Share this code to earn 50 points per referral!</p>
-                </div>
-
-                {/* Referral Stats */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
-                    <span className="text-purple-300 text-sm">Total Referrals:</span>
-                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
-                      {referralStats.totalReferrals}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
-                    <span className="text-purple-300 text-sm">Bonus Points:</span>
-                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                      {referralStats.bonusPointsEarned}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
-                    <span className="text-purple-300 text-sm">Bonus Tokens:</span>
-                    <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
-                      {referralStats.bonusFaucetTokens}
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Enter Referral Code */}
-                {!referralStats.hasUsedReferralCode && (
-                  <div className="pt-4 border-t border-purple-500/20 space-y-3">
-                    <label className="text-sm font-medium text-purple-200">Have a referral code?</label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Enter code"
-                        value={enteredReferralCode}
-                        onChange={(e) => setEnteredReferralCode(e.target.value.toUpperCase())}
-                        className="bg-black/40 border-purple-500/30 text-white placeholder-purple-400 font-mono"
-                      />
-                      <Button
-                        onClick={handleApplyReferralCode}
-                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-                        disabled={!enteredReferralCode.trim()}
-                      >
-                        <Gift className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <p className="text-xs text-purple-400">Get bonus tokens when you enter a friend's code!</p>
-                  </div>
-                )}
-
-                {referralStats.hasUsedReferralCode && (
-                  <div className="pt-4 border-t border-purple-500/20">
-                    <div className="flex items-center gap-2 p-3 bg-green-900/20 rounded-lg border border-green-500/20">
-                      <Gift className="w-4 h-4 text-green-400" />
-                      <span className="text-sm text-green-300">Referral code applied! Bonus tokens unlocked.</span>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
+            
             {/* Enhanced Betting Controls */}
             <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
               <CardHeader>
@@ -489,13 +432,103 @@ export default function CrashGame() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Referral System Card */}
+            <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-purple-200">
+                  <Users className="w-6 h-6 text-purple-400" />
+                  Referral Rewards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Your Referral Code */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-purple-200">Your Referral Code</label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={referralCode}
+                      readOnly
+                      className="bg-black/40 border-purple-500/30 text-white font-mono"
+                    />
+                    <Button
+                      onClick={handleCopyReferralCode}
+                      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-3"
+                    >
+                      {copySuccess ? (
+                        <span className="text-green-400">✓</span>
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-purple-400">Share this code to earn 50 points per referral!</p>
+                </div>
+
+                {/* Referral Stats */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
+                    <span className="text-purple-300 text-sm">Total Referrals:</span>
+                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+                      {referralStats.totalReferrals}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
+                    <span className="text-purple-300 text-sm">Bonus Points:</span>
+                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                      {referralStats.bonusPointsEarned}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
+                    <span className="text-purple-300 text-sm">Bonus Tokens:</span>
+                    <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+                      {referralStats.bonusFaucetTokens}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Enter Referral Code */}
+                {!referralStats.hasUsedReferralCode && (
+                  <div className="pt-4 border-t border-purple-500/20 space-y-3">
+                    <label className="text-sm font-medium text-purple-200">Have a referral code?</label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        placeholder="Enter code"
+                        value={enteredReferralCode}
+                        onChange={(e) => setEnteredReferralCode(e.target.value.toUpperCase())}
+                        className="bg-black/40 border-purple-500/30 text-white placeholder-purple-400 font-mono"
+                      />
+                      <Button
+                        onClick={handleApplyReferralCode}
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                        disabled={!enteredReferralCode.trim()}
+                      >
+                        <Gift className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-purple-400">Get bonus tokens when you enter a friend's code!</p>
+                  </div>
+                )}
+
+                {referralStats.hasUsedReferralCode && (
+                  <div className="pt-4 border-t border-purple-500/20">
+                    <div className="flex items-center gap-2 p-3 bg-green-900/20 rounded-lg border border-green-500/20">
+                      <Gift className="w-4 h-4 text-green-400" />
+                      <span className="text-sm text-green-300">Referral code applied! Bonus tokens unlocked.</span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
           </div>
         </div>
 
         {/* Enhanced Bottom Tabs */}
         <div className="mt-8">
           <Tabs defaultValue="leaderboard" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-black/40 backdrop-blur-sm border border-purple-500/20">
+            <TabsList className="grid w-full grid-cols-3 bg-black/40 backdrop-blur-sm border border-purple-500/20">
               <TabsTrigger
                 value="leaderboard"
                 className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
@@ -505,12 +538,18 @@ export default function CrashGame() {
               <TabsTrigger value="recent" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
                 📊 Recent Games
               </TabsTrigger>
+              <TabsTrigger value="stats" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                📈 Statistics
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="leaderboard">
               <Scoreboard />
             </TabsContent>
             <TabsContent value="recent">
               <GameHistory history={gameHistory} detailed />
+            </TabsContent>
+            <TabsContent value="stats">
+              <StatsView />
             </TabsContent>
           </Tabs>
         </div>

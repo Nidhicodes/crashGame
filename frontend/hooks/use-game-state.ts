@@ -329,5 +329,6 @@ export function useGameState() {
     cashOut,
     claimFaucet,
     convertTokensToPoints,
+    setGameState,
   }
 }
