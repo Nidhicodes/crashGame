@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Trophy, Medal, Award, Crown } from "lucide-react"
+import { getLeaderboard } from "@/lib/api"
 
 interface Player {
   id: string
@@ -14,18 +16,18 @@ interface Player {
   rank: number
 }
 
-const mockPlayers: Player[] = [
-  { id: "1", name: "CryptoKing", totalWon: 15420, gamesPlayed: 234, winRate: 67.5, bestMultiplier: 127.3, rank: 1 },
-  { id: "2", name: "RocketMaster", totalWon: 12890, gamesPlayed: 189, winRate: 71.2, bestMultiplier: 89.7, rank: 2 },
-  { id: "3", name: "MoonShot", totalWon: 11250, gamesPlayed: 156, winRate: 69.8, bestMultiplier: 156.4, rank: 3 },
-  { id: "4", name: "DiamondHands", totalWon: 9870, gamesPlayed: 201, winRate: 58.3, bestMultiplier: 78.9, rank: 4 },
-  { id: "5", name: "QuraniumPro", totalWon: 8640, gamesPlayed: 143, winRate: 72.1, bestMultiplier: 234.5, rank: 5 },
-  { id: "6", name: "CrashExpert", totalWon: 7890, gamesPlayed: 167, winRate: 64.7, bestMultiplier: 45.6, rank: 6 },
-  { id: "7", name: "TestNetHero", totalWon: 7120, gamesPlayed: 134, winRate: 66.4, bestMultiplier: 67.8, rank: 7 },
-  { id: "8", name: "GamingLegend", totalWon: 6540, gamesPlayed: 178, winRate: 61.2, bestMultiplier: 123.4, rank: 8 },
-]
-
 export function Scoreboard() {
+  const [players, setPlayers] = useState<Player[]>([])
+  const [leaderboardType, setLeaderboardType] = useState("all-time")
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      const data = await getLeaderboard(leaderboardType)
+      setPlayers(data.entries)
+    }
+    fetchLeaderboard()
+  }, [leaderboardType])
+
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
@@ -55,15 +57,28 @@ export function Scoreboard() {
   return (
     <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-2xl shadow-purple-500/10">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-purple-200">
-          <Trophy className="w-6 h-6 text-purple-400" />
-          Leaderboard
-          <Badge className="bg-purple-600/20 text-purple-300 border-purple-500/30">Live</Badge>
+        <CardTitle className="flex items-center justify-between text-purple-200">
+          <div className="flex items-center gap-3">
+            <Trophy className="w-6 h-6 text-purple-400" />
+            Leaderboard
+            <Badge className="bg-purple-600/20 text-purple-300 border-purple-500/30">Live</Badge>
+          </div>
+          <div>
+            <select
+              value={leaderboardType}
+              onChange={(e) => setLeaderboardType(e.target.value)}
+              className="bg-purple-900/40 border-purple-500/30 text-white rounded-md px-2 py-1"
+            >
+              <option value="all-time">All Time</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {mockPlayers.map((player) => (
+          {players.map((player) => (
             <div
               key={player.id}
               className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-900/20 to-black/20 rounded-lg hover:from-purple-900/30 hover:to-black/30 transition-all duration-300 border border-purple-500/20"

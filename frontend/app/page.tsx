@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Rocket, TrendingUp, Trophy, Coins, Zap, Crown } from "lucide-react"
+import { Rocket, TrendingUp, Trophy, Coins, Zap, Crown, Users, Copy, Gift, ExternalLink } from "lucide-react"
 import { GameCanvas } from "@/components/game-canvas"
 import { Scoreboard } from "@/components/scoreboard"
 import { GameHistory } from "@/components/game-history"
@@ -19,6 +19,17 @@ export default function CrashGame() {
   const { wallet, connectWallet, isConnected } = useWallet()
   const [betAmount, setBetAmount] = useState("")
   const [convertAmount, setConvertAmount] = useState("")
+  
+  // Referral system state
+  const [referralCode] = useState(`QRN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`)
+  const [enteredReferralCode, setEnteredReferralCode] = useState("")
+  const [referralStats, setReferralStats] = useState({
+    totalReferrals: 3,
+    bonusPointsEarned: 150,
+    bonusFaucetTokens: 75,
+    hasUsedReferralCode: false
+  })
+  const [copySuccess, setCopySuccess] = useState(false)
 
   const handlePlaceBet = () => {
     const amount = Number.parseFloat(betAmount)
@@ -44,6 +55,28 @@ export default function CrashGame() {
     }
   }
 
+  const handleCopyReferralCode = async () => {
+    try {
+      await navigator.clipboard.writeText(referralCode)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy referral code:', err)
+    }
+  }
+
+  const handleApplyReferralCode = () => {
+    if (enteredReferralCode.trim() && !referralStats.hasUsedReferralCode) {
+      // Simulate applying referral code
+      setReferralStats(prev => ({
+        ...prev,
+        hasUsedReferralCode: true
+      }))
+      setEnteredReferralCode("")
+      // You would typically call an API here to apply the referral code
+    }
+  }
+
   const getGameStatusColor = () => {
     switch (gameState.phase) {
       case "betting":
@@ -58,7 +91,6 @@ export default function CrashGame() {
         return "bg-purple-500 shadow-purple-500/50"
     }
   }
-
 
   const getJackpotBadge = (multiplier: number) => {
     if (multiplier >= 5000) return { text: "MEGA JACKPOT!", color: "bg-purple-600" }
@@ -110,7 +142,6 @@ export default function CrashGame() {
                 <span className="text-sm text-blue-400 font-semibold">
                   {Number(wallet?.balance).toFixed(6)} QRN
                 </span>
-
               </div>
             )}
           </div>
@@ -142,7 +173,6 @@ export default function CrashGame() {
                       {gameState.phase === "waiting" && `Next round starts in ${gameState.timeLeft}s`}
                       {gameState.phase === "crashed" && `Round ended...`}
                     </div>
-
                   </div>
                 </div>
 
@@ -262,6 +292,95 @@ export default function CrashGame() {
               </CardContent>
             </Card>
 
+            {/* Referral System Card */}
+            <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-purple-200">
+                  <Users className="w-6 h-6 text-purple-400" />
+                  Referral Rewards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Your Referral Code */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-purple-200">Your Referral Code</label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={referralCode}
+                      readOnly
+                      className="bg-black/40 border-purple-500/30 text-white font-mono"
+                    />
+                    <Button
+                      onClick={handleCopyReferralCode}
+                      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-3"
+                    >
+                      {copySuccess ? (
+                        <span className="text-green-400">✓</span>
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-purple-400">Share this code to earn 50 points per referral!</p>
+                </div>
+
+                {/* Referral Stats */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
+                    <span className="text-purple-300 text-sm">Total Referrals:</span>
+                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+                      {referralStats.totalReferrals}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
+                    <span className="text-purple-300 text-sm">Bonus Points:</span>
+                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                      {referralStats.bonusPointsEarned}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
+                    <span className="text-purple-300 text-sm">Bonus Tokens:</span>
+                    <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+                      {referralStats.bonusFaucetTokens}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Enter Referral Code */}
+                {!referralStats.hasUsedReferralCode && (
+                  <div className="pt-4 border-t border-purple-500/20 space-y-3">
+                    <label className="text-sm font-medium text-purple-200">Have a referral code?</label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        placeholder="Enter code"
+                        value={enteredReferralCode}
+                        onChange={(e) => setEnteredReferralCode(e.target.value.toUpperCase())}
+                        className="bg-black/40 border-purple-500/30 text-white placeholder-purple-400 font-mono"
+                      />
+                      <Button
+                        onClick={handleApplyReferralCode}
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                        disabled={!enteredReferralCode.trim()}
+                      >
+                        <Gift className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-purple-400">Get bonus tokens when you enter a friend's code!</p>
+                  </div>
+                )}
+
+                {referralStats.hasUsedReferralCode && (
+                  <div className="pt-4 border-t border-purple-500/20">
+                    <div className="flex items-center gap-2 p-3 bg-green-900/20 rounded-lg border border-green-500/20">
+                      <Gift className="w-4 h-4 text-green-400" />
+                      <span className="text-sm text-green-300">Referral code applied! Bonus tokens unlocked.</span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Enhanced Betting Controls */}
             <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
               <CardHeader>
@@ -326,7 +445,6 @@ export default function CrashGame() {
                         : "Waiting for the next round..."}
                   </Button>
                 )}
-
 
                 {gameState.playerBet && (
                   <div className="text-sm text-center p-3 bg-purple-900/30 rounded-lg border border-purple-500/20">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { useWallet } from "./use-wallet"
 import { getProfile } from "@/lib/indexedDb"
+import { getUser, getGameHistory as getHistory, saveGameResult, updateUser } from "@/lib/api"
 
 interface GameState {
   phase: "betting" | "flying" | "crashed" | "waiting"
@@ -67,32 +68,36 @@ export function useGameState() {
   }, [balance])
 
   useEffect(() => {
-    async function syncTokens() {
+    async function syncUser() {
       if (wallet?.address) {
-        const profile = await getProfile(wallet.address)
-        if (profile && typeof profile.tokens === "number") {
+        const user = await getUser(wallet.address)
+        if (user) {
           setPlayerStats((prev) => ({
             ...prev,
-            tokens: profile.tokens,
+            ...user.stats,
           }))
         }
       }
     }
-    syncTokens()
+    syncUser()
   }, [wallet?.address])
 
-  const [gameHistory, setGameHistory] = useState<GameResult[]>([
-    { id: "1", multiplier: 2.34, timestamp: new Date(Date.now() - 60000), players: 12 },
-    { id: "2", multiplier: 1.23, timestamp: new Date(Date.now() - 120000), players: 8 },
-    { id: "3", multiplier: 15.67, timestamp: new Date(Date.now() - 180000), players: 15, jackpot: true },
-    { id: "4", multiplier: 3.45, timestamp: new Date(Date.now() - 240000), players: 10 },
-    { id: "5", multiplier: 1.89, timestamp: new Date(Date.now() - 300000), players: 7 },
-  ])
+  const [gameHistory, setGameHistory] = useState<GameResult[]>([])
+
+  useEffect(() => {
+    async function fetchGameHistory() {
+      if (wallet?.address) {
+        const history = await getHistory(wallet.address)
+        setGameHistory(history)
+      }
+    }
+    fetchGameHistory()
+  }, [wallet?.address])
 
   const generateCrashPoint = useCallback(() => {
     const rand = Math.random()
     if (rand < 0.5) return 1 + Math.random() * 2 // 1x-3x (50% chance)
-    if (rand < 0.8) return 3 + Math.random() * 7 // 3x-10x (30% chance)  
+    if (rand < 0.8) return 3 + Math.random() * 7 // 3x-10x (30% chance)
     if (rand < 0.95) return 10 + Math.random() * 40 // 10x-50x (15% chance)
     if (rand < 0.99) return 50 + Math.random() * 200 // 50x-250x (4% chance)
     return 250 + Math.random() * 4750 // 250x-5000x (1% chance)
@@ -157,14 +162,20 @@ export function useGameState() {
 
               if (newMultiplier >= crashPoint) {
                 // Handle player bet result before crashing
-                let updatedStats = playerStats
-                if (prev.playerBet && !prev.playerBet) { // Player didn't cash out
-                  updatedStats = {
-                    ...playerStats,
-                    gamesPlayed: playerStats.gamesPlayed + 1,
-                    // Points already deducted when bet was placed
+                if (prev.playerBet) { // Player didn't cash out
+                  const gameResult = {
+                    gameId: `${Date.now()}`,
+                    betAmount: prev.playerBet,
+                    targetMultiplier: 0,
+                    cashedOutAt: 0,
+                    cashedOutTime: new Date(),
+                    winnings: 0,
+                    won: false,
+                    walletAddress: wallet?.address,
                   }
+                  saveGameResult(gameResult)
                 }
+
 
                 // Add to game history
                 const newResult: GameResult = {
@@ -182,8 +193,8 @@ export function useGameState() {
                   setPlayerStats((prevStats) => ({
                     ...prevStats,
                     gamesPlayed: prevStats.gamesPlayed + 1,
-                    winRate: (prevStats.gamesPlayed > 0) 
-                      ? ((prevStats.winRate * prevStats.gamesPlayed) / (prevStats.gamesPlayed + 1)) 
+                    winRate: (prevStats.gamesPlayed > 0)
+                      ? ((prevStats.winRate * prevStats.gamesPlayed) / (prevStats.gamesPlayed + 1))
                       : 0,
                   }))
                 }
@@ -227,7 +238,7 @@ export function useGameState() {
     return () => {
       clearInterval(interval)
     }
-  }, [generateCrashPoint, generateActivePlayers, playerStats])
+  }, [generateCrashPoint, generateActivePlayers, playerStats, wallet?.address])
 
   // Faucet cooldown
   useEffect(() => {
@@ -240,31 +251,51 @@ export function useGameState() {
   }, [playerStats.faucetCooldown])
 
   const placeBet = useCallback(
-    (amount: number) => {
+    async (amount: number) => {
       if (gameState.phase === "betting" && amount <= playerStats.points && amount > 0) {
         setGameState((prev) => ({ ...prev, playerBet: amount }))
-        setPlayerStats((prev) => ({ ...prev, points: prev.points - amount }))
+        const newPoints = playerStats.points - amount
+        setPlayerStats((prev) => ({ ...prev, points: newPoints }))
+        if (wallet?.address) {
+          await updateUser(wallet.address, { stats: { ...playerStats, points: newPoints } })
+        }
       }
     },
-    [gameState.phase, playerStats.points],
+    [gameState.phase, playerStats, wallet?.address],
   )
 
-  const cashOut = useCallback(() => {
+  const cashOut = useCallback(async () => {
     if (gameState.phase === "flying" && gameState.playerBet) {
       const winnings = gameState.playerBet * gameState.currentMultiplier
-      setPlayerStats((prev) => ({
-        ...prev,
-        points: prev.points + winnings,
-        totalWon: prev.totalWon + winnings,
-        gamesPlayed: prev.gamesPlayed + 1,
-        winRate: prev.gamesPlayed > 0 
-          ? (((prev.gamesPlayed * prev.winRate) / 100 + 1) / (prev.gamesPlayed + 1)) * 100
-          : 100,
-        bestMultiplier: Math.max(prev.bestMultiplier, gameState.currentMultiplier),
-      }))
+      const newPlayerStats = {
+        ...playerStats,
+        points: playerStats.points + winnings,
+        totalWon: playerStats.totalWon + winnings,
+        gamesPlayed: playerStats.gamesPlayed + 1,
+        winRate:
+          playerStats.gamesPlayed > 0
+            ? (((playerStats.gamesPlayed * playerStats.winRate) / 100 + 1) / (playerStats.gamesPlayed + 1)) * 100
+            : 100,
+        bestMultiplier: Math.max(playerStats.bestMultiplier, gameState.currentMultiplier),
+      }
+      setPlayerStats(newPlayerStats)
       setGameState((prev) => ({ ...prev, playerBet: null }))
+
+      if (wallet?.address) {
+        await updateUser(wallet.address, { stats: newPlayerStats })
+        await saveGameResult({
+          gameId: `${Date.now()}`,
+          betAmount: gameState.playerBet,
+          targetMultiplier: 0,
+          cashedOutAt: gameState.currentMultiplier,
+          cashedOutTime: new Date(),
+          winnings,
+          won: true,
+          walletAddress: wallet.address,
+        })
+      }
     }
-  }, [gameState.phase, gameState.playerBet, gameState.currentMultiplier])
+  }, [gameState, playerStats, wallet?.address])
 
   const claimFaucet = useCallback(() => {
     if (playerStats.faucetCooldown > 0) return
