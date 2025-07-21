@@ -52,10 +52,13 @@ export default function CrashGame() {
         return "bg-green-500 shadow-green-500/50"
       case "crashed":
         return "bg-red-500 shadow-red-500/50"
+      case "waiting":
+        return "bg-yellow-500 shadow-yellow-500/50"
       default:
         return "bg-purple-500 shadow-purple-500/50"
     }
   }
+
 
   const getJackpotBadge = (multiplier: number) => {
     if (multiplier >= 5000) return { text: "MEGA JACKPOT!", color: "bg-purple-600" }
@@ -104,6 +107,10 @@ export default function CrashGame() {
                 <span className="text-sm font-mono">
                   {wallet?.address?.slice(0, 6)}...{wallet?.address?.slice(-4)}
                 </span>
+                <span className="text-sm text-blue-400 font-semibold">
+                  {Number(wallet?.balance).toFixed(6)} QRN
+                </span>
+
               </div>
             )}
           </div>
@@ -130,9 +137,12 @@ export default function CrashGame() {
                     <div className="text-4xl font-bold bg-gradient-to-r from-green-400 to-purple-400 bg-clip-text text-transparent">
                       {gameState.currentMultiplier.toFixed(2)}×
                     </div>
-                    {gameState.phase === "betting" && (
-                      <div className="text-sm text-purple-300">Next round in {gameState.timeLeft}s</div>
-                    )}
+                    <div className="text-sm text-purple-300">
+                      {gameState.phase === "betting" && `Place your bets: ${gameState.timeLeft}s`}
+                      {gameState.phase === "waiting" && `Next round starts in ${gameState.timeLeft}s`}
+                      {gameState.phase === "crashed" && `Round ended...`}
+                    </div>
+
                   </div>
                 </div>
 
@@ -242,7 +252,6 @@ export default function CrashGame() {
                     />
                     <Button
                       onClick={handleConvertTokens}
-                      size="sm"
                       className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
                     >
                       Convert
@@ -274,24 +283,18 @@ export default function CrashGame() {
                 <div className="grid grid-cols-3 gap-2">
                   <Button
                     onClick={() => setBetAmount("10")}
-                    size="sm"
-                    variant="outline"
                     className="border-purple-500/30 text-purple-300 hover:bg-purple-900/40"
                   >
                     10
                   </Button>
                   <Button
                     onClick={() => setBetAmount("50")}
-                    size="sm"
-                    variant="outline"
                     className="border-purple-500/30 text-purple-300 hover:bg-purple-900/40"
                   >
                     50
                   </Button>
                   <Button
                     onClick={() => setBetAmount("100")}
-                    size="sm"
-                    variant="outline"
                     className="border-purple-500/30 text-purple-300 hover:bg-purple-900/40"
                   >
                     100
@@ -316,9 +319,14 @@ export default function CrashGame() {
                   </Button>
                 ) : (
                   <Button disabled className="w-full bg-gray-600">
-                    {gameState.phase === "crashed" ? "Round Ended" : "Waiting for next round"}
+                    {gameState.phase === "crashed"
+                      ? "Round Crashed!"
+                      : gameState.phase === "waiting"
+                        ? `Get ready: ${gameState.timeLeft}s`
+                        : "Waiting for the next round..."}
                   </Button>
                 )}
+
 
                 {gameState.playerBet && (
                   <div className="text-sm text-center p-3 bg-purple-900/30 rounded-lg border border-purple-500/20">

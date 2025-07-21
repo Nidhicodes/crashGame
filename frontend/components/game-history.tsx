@@ -102,9 +102,15 @@ export function GameHistory({ history, detailed = false }: GameHistoryProps) {
             <TrendingUp className="w-4 h-4 text-green-400" />
             <span>
               Avg:{" "}
-              {(
-                history.slice(0, 10).reduce((sum, game) => sum + game.multiplier, 0) / Math.min(10, history.length)
-              ).toFixed(2)}
+              {history.slice(0, 10).map((game, index) => (
+                <Badge
+                  key={`${game.id}-${index}`}
+                  className={`${getMultiplierColor(game.multiplier)} bg-purple-900/20 border-current backdrop-blur-sm hover:bg-purple-900/40 transition-colors`}
+                >
+                  {game.multiplier.toFixed(2)}×
+                </Badge>
+              ))}
+
               ×
             </span>
           </div>

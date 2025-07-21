@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react"
 
 interface GameCanvasProps {
   multiplier: number
-  phase: "betting" | "flying" | "crashed"
+  phase: "betting" | "flying" | "crashed" | "waiting"
   crashed: boolean
 }
 
