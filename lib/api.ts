@@ -10,7 +10,7 @@ export async function getUser(walletAddress: string) {
   console.log('🔍 getUser called for:', walletAddress);
   
   try {
-    const response = await fetch(`http://localhost:5000/api/users/${walletAddress}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/${walletAddress}`);
     console.log('📡 getUser response status:', response.status);
     
     if (response.status === 404) {

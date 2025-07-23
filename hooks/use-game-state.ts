@@ -92,7 +92,7 @@ export function useGameState() {
             username: `Player_${wallet.address.slice(0, 6)}`,
           }
           
-          const response = await fetch('http://localhost:5000/api/users', {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ export function useGameState() {
         };
         console.log('📤 Creating user with payload:', createPayload);
 
-        const res = await fetch('http://localhost:5000/api/users', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(createPayload),
