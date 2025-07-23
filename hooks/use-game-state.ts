@@ -58,6 +58,8 @@ export function useGameState() {
     faucetCooldown: 0,
   })
 
+  const [userExists, setUserExists] = useState(false)
+
   useEffect(() => {
     if (balance !== null) {
       setPlayerStats((prev) => ({
@@ -68,19 +70,140 @@ export function useGameState() {
   }, [balance])
 
   useEffect(() => {
-    async function syncUser() {
-      if (wallet?.address) {
-        const user = await getUser(wallet.address)
-        if (user) {
+    async function ensureUserExists() {
+      if (!wallet?.address) {
+        setUserExists(false)
+        return
+      }
+
+      try {
+        console.log('🔍 Checking if user exists:', wallet.address)
+        
+        // Try to get the user first
+        let user = await getUser(wallet.address)
+        console.log('👤 User found:', user)
+
+        if (!user) {
+          console.log('🆕 Creating new user...')
+          
+          // Create the user with proper payload
+          const createPayload = {
+            walletAddress: wallet.address.toLowerCase(), // Ensure lowercase
+            username: `Player_${wallet.address.slice(0, 6)}`,
+          }
+          
+          const response = await fetch('http://localhost:5000/api/users', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(createPayload),
+          })
+
+          console.log('📡 Create response status:', response.status)
+          
+          if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Create user failed:', errorText)
+            throw new Error(`Failed to create user: ${response.status} ${errorText}`)
+          }
+
+          user = await response.json()
+          console.log('✅ User created successfully:', user)
+        }
+
+        // Update player stats with user data
+        if (user?.stats) {
+          console.log('📊 Updating stats from user:', user.stats)
           setPlayerStats((prev) => ({
             ...prev,
-            ...user.stats,
+            points: user.stats.currentPoints || prev.points,
+            tokens: user.stats.currentTokens || prev.tokens,
+            totalWon: user.stats.totalWinnings || 0,
+            gamesPlayed: user.stats.totalGamesPlayed || 0,
+            winRate: user.stats.winRate || 0,
+            bestMultiplier: user.stats.bestMultiplier || 0,
+            rank: user.stats.rank || 0,
           }))
         }
+
+        setUserExists(true)
+        console.log('✅ User setup complete')
+
+      } catch (error) {
+        console.error("❌ User setup failed:", error)
+        setUserExists(false)
       }
     }
-    syncUser()
+
+    ensureUserExists()
   }, [wallet?.address])
+
+  useEffect(() => {
+  async function syncUser() {
+    if (!wallet?.address) {
+      console.log('⏳ No wallet address available yet');
+      return;
+    }
+
+    console.log('🔍 Syncing user for address:', wallet.address);
+
+    try {
+      // Try to get the user first
+      console.log('📡 Fetching user from API...');
+      let user = await getUser(wallet.address);
+      console.log('👤 User fetch result:', user);
+
+      if (!user) {
+        console.log('🆕 User not found, creating new user...');
+        const createPayload = {
+          walletAddress: wallet.address,
+          username: wallet.address.slice(0, 6),
+        };
+        console.log('📤 Creating user with payload:', createPayload);
+
+        const res = await fetch('http://localhost:5000/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(createPayload),
+        });
+
+        console.log('📡 Create user response status:', res.status);
+        const responseText = await res.text();
+        console.log('📡 Create user response body:', responseText);
+
+        if (!res.ok) {
+          throw new Error(`Failed to create user: ${res.status} ${responseText}`);
+        }
+
+        try {
+          user = JSON.parse(responseText);
+          console.log('✅ User created successfully:', user);
+        } catch (parseError) {
+          console.error('❌ Failed to parse user response:', parseError);
+          throw new Error('Invalid JSON response from server');
+        }
+      }
+
+      if (user?.stats) {
+        console.log('📊 Updating player stats with:', user.stats);
+        setPlayerStats((prev) => ({
+          ...prev,
+          ...user.stats,
+        }));
+      }
+    } catch (error) {
+      console.error("❌ User sync failed:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        stack: error.stack
+      });
+    }
+  }
+
+  syncUser();
+}, [wallet?.address]);
 
   const [gameHistory, setGameHistory] = useState<GameResult[]>([])
 
@@ -115,6 +238,8 @@ export function useGameState() {
 
   // Improved game loop with better phase management
   useEffect(() => {
+    if(!userExists) return
+
     let interval: NodeJS.Timeout
     let crashPoint = generateCrashPoint()
 
@@ -162,7 +287,7 @@ export function useGameState() {
 
               if (newMultiplier >= crashPoint) {
                 // Handle player bet result before crashing
-                if (prev.playerBet) { // Player didn't cash out
+                if (prev.playerBet && wallet?.address) { // Player didn't cash out
                   const gameResult = {
                     gameId: `${Date.now()}`,
                     betAmount: prev.playerBet,
@@ -253,53 +378,90 @@ export function useGameState() {
   const placeBet = useCallback(
     async (amount: number) => {
       if (gameState.phase === "betting" && amount <= playerStats.points && amount > 0) {
-        setGameState((prev) => ({ ...prev, playerBet: amount }))
-        const newPoints = playerStats.points - amount
-        setPlayerStats((prev) => ({ ...prev, points: newPoints }))
-        if (wallet?.address) {
-          await updateUser(wallet.address, { stats: { ...playerStats, points: newPoints } })
+        try {
+          setGameState((prev) => ({ ...prev, playerBet: amount }))
+          const newPoints = playerStats.points - amount
+          setPlayerStats((prev) => ({ ...prev, points: newPoints }))
+          
+          // Update user stats in database
+          await updateUser(wallet.address, { 
+            stats: { 
+              ...playerStats, 
+              currentPoints: newPoints 
+            } 
+          })
+          
+          console.log('✅ Bet placed successfully:', amount)
+        } catch (error) {
+          console.error('❌ Failed to place bet:', error)
+          // Revert the bet on error
+          setGameState((prev) => ({ ...prev, playerBet: null }))
+          setPlayerStats((prev) => ({ ...prev, points: prev.points + amount }))
         }
       }
     },
-    [gameState.phase, playerStats, wallet?.address],
+    [gameState.phase, playerStats, wallet?.address, userExists],
   )
 
   const cashOut = useCallback(async () => {
-    if (gameState.phase === "flying" && gameState.playerBet) {
+    if (!userExists || !wallet?.address || gameState.phase !== "flying" || !gameState.playerBet) {
+      return
+    }
+
+    try {
       const winnings = gameState.playerBet * gameState.currentMultiplier
       const newPlayerStats = {
         ...playerStats,
         points: playerStats.points + winnings,
         totalWon: playerStats.totalWon + winnings,
         gamesPlayed: playerStats.gamesPlayed + 1,
-        winRate:
-          playerStats.gamesPlayed > 0
-            ? (((playerStats.gamesPlayed * playerStats.winRate) / 100 + 1) / (playerStats.gamesPlayed + 1)) * 100
-            : 100,
+        winRate: playerStats.gamesPlayed > 0
+          ? (((playerStats.gamesPlayed * playerStats.winRate) / 100 + 1) / (playerStats.gamesPlayed + 1)) * 100
+          : 100,
         bestMultiplier: Math.max(playerStats.bestMultiplier, gameState.currentMultiplier),
       }
-      setPlayerStats(newPlayerStats)
+      
+      setPlayerStats({
+        ...newPlayerStats,
+        points: newPlayerStats.points,
+        totalWon: newPlayerStats.totalWon,
+        gamesPlayed: newPlayerStats.gamesPlayed,
+        winRate: newPlayerStats.winRate,
+        bestMultiplier: newPlayerStats.bestMultiplier,
+      })
       setGameState((prev) => ({ ...prev, playerBet: null }))
 
-      if (wallet?.address) {
-        await updateUser(wallet.address, { stats: newPlayerStats })
-        await saveGameResult({
-          gameId: `${Date.now()}`,
-          betAmount: gameState.playerBet,
-          targetMultiplier: 0,
-          cashedOutAt: gameState.currentMultiplier,
-          cashedOutTime: new Date(),
-          winnings,
-          won: true,
-          walletAddress: wallet.address,
-        })
-      }
+      // Update database
+      await updateUser(wallet.address, { 
+        stats: {
+          currentPoints: newPlayerStats.points,
+          totalWinnings: newPlayerStats.totalWon,
+          totalGamesPlayed: newPlayerStats.gamesPlayed,
+          winRate: newPlayerStats.winRate,
+          bestMultiplier: newPlayerStats.bestMultiplier,
+        }
+      })
+      
+      await saveGameResult({
+        gameId: `${Date.now()}`,
+        betAmount: gameState.playerBet,
+        targetMultiplier: 0,
+        cashedOutAt: gameState.currentMultiplier,
+        cashedOutTime: new Date(),
+        winnings,
+        won: true,
+        walletAddress: wallet.address,
+      })
+      
+      console.log('✅ Cash out successful:', winnings)
+    } catch (error) {
+      console.error('❌ Cash out failed:', error)
     }
-  }, [gameState, playerStats, wallet?.address])
+  }, [gameState, playerStats, wallet?.address, userExists])
 
   const claimFaucet = useCallback(() => {
     if (playerStats.faucetCooldown > 0) return
-    
+
     // Instead of opening external link, give tokens directly for demo
     setPlayerStats((prev) => ({
       ...prev,
@@ -330,5 +492,6 @@ export function useGameState() {
     claimFaucet,
     convertTokensToPoints,
     setGameState,
+    userExists
   }
 }

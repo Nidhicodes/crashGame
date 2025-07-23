@@ -6,10 +6,31 @@ const api = axios.create({
   baseURL: API_URL,
 });
 
-export const getUser = async (walletAddress: string) => {
-  const response = await api.get(`/users/${walletAddress}`);
-  return response.data;
-};
+export async function getUser(walletAddress: string) {
+  console.log('🔍 getUser called for:', walletAddress);
+  
+  try {
+    const response = await fetch(`http://localhost:5000/api/users/${walletAddress}`);
+    console.log('📡 getUser response status:', response.status);
+    
+    if (response.status === 404) {
+      console.log('👤 User not found in database');
+      return null;
+    }
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const user = await response.json();
+    console.log('👤 getUser result:', user);
+    return user;
+  } catch (error) {
+    console.error('❌ getUser error:', error);
+    throw error;
+  }
+}
+
 
 export const updateUser = async (walletAddress: string, data: any) => {
   const response = await api.put(`/users/${walletAddress}`, data);
