@@ -146,17 +146,18 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
           }
           ctx.globalAlpha = 1
 
-          // Main rocket
-          ctx.font = "24px Arial"
+          // Main rocket (larger size)
+          ctx.font = "60px Arial"
           ctx.textAlign = "center"
           ctx.fillStyle = "#fbbf24"
-          ctx.fillText("🚀", lastPoint[0], lastPoint[1] - 5)
+          ctx.fillText("🚀", lastPoint[0], lastPoint[1] - 10)
 
           // Rocket glow
           ctx.shadowColor = "#fbbf24"
-          ctx.shadowBlur = 10
-          ctx.fillText("🚀", lastPoint[0], lastPoint[1] - 5)
+          ctx.shadowBlur = 15
+          ctx.fillText("🚀", lastPoint[0], lastPoint[1] - 10)
           ctx.shadowBlur = 0
+
         }
       }
 
