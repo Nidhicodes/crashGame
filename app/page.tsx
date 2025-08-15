@@ -257,16 +257,22 @@ export default function CrashGame() {
 
                 {/* Enhanced Faucet */}
                 <div className="pt-4 border-t border-purple-500/20">
-                  <Button
-                    onClick={handleClaimFaucet}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg shadow-blue-500/25 border border-blue-500/20"
-                    disabled={playerStats.faucetCooldown > 0}
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    {playerStats.faucetCooldown > 0
-                      ? `Faucet (${playerStats.faucetCooldown}s)`
-                      : "Claim Faucet (100 tokens)"}
-                  </Button>
+                      <a
+                        href="https://faucet.quranium.org/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          // onClick={handleClaimFaucet}
+                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg shadow-blue-500/25 border border-blue-500/20"
+                          // disabled={playerStats.faucetCooldown > 0}
+                        >
+                            <Zap className="w-4 h-4 mr-2" />
+                            {playerStats.faucetCooldown > 0
+                              ? `Faucet (${playerStats.faucetCooldown}s)`
+                              : "Claim Faucet"}
+                        </Button>
+                      </a>
                 </div>
 
                 {/* Enhanced Convert Tokens */}
