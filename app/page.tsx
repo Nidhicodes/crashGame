@@ -12,6 +12,7 @@ import { Scoreboard } from "@/components/scoreboard"
 import { GameHistory } from "@/components/game-history"
 import { useGameState } from "@/hooks/use-game-state"
 import { useWallet } from "@/hooks/use-wallet"
+import  LeftSidebarTabs  from "@/components/left-sidebar"
 
 export default function CrashGame() {
   const { gameState, playerStats, gameHistory, placeBet, cashOut, claimFaucet, convertTokensToPoints } = useGameState()
@@ -101,7 +102,8 @@ export default function CrashGame() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-950 to-black text-white overflow-hidden">
-      {/* Animated background particles */}
+        
+        {/* Animated background particles */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -147,9 +149,16 @@ export default function CrashGame() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <aside className="lg:col-span-1">
+            <LeftSidebarTabs playerStats={playerStats} history={gameHistory} />
+          </aside>
+             
+         
           {/* Enhanced Main Game Area */}
           <div className="lg:col-span-3 space-y-6">
+            
+          
             {/* Enhanced Game Status */}
             <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-2xl shadow-purple-500/10">
               <CardContent className="p-6">
@@ -465,34 +474,6 @@ export default function CrashGame() {
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-            {/* Enhanced Quick Stats */}
-            <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-purple-200">
-                  <Trophy className="w-6 h-6 text-purple-400" />
-                  Your Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
-                  <span className="text-purple-300">Games Played:</span>
-                  <span className="font-bold text-white">{playerStats.gamesPlayed}</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
-                  <span className="text-purple-300">Win Rate:</span>
-                  <span className="font-bold text-green-400">{playerStats.winRate.toFixed(1)}%</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
-                  <span className="text-purple-300">Best Multiplier:</span>
-                  <span className="font-bold text-yellow-400">{playerStats.bestMultiplier.toFixed(2)}×</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
-                  <span className="text-purple-300">Rank:</span>
-                  <span className="font-bold text-purple-400">#{playerStats.rank}</span>
-                </div>
               </CardContent>
             </Card>
           </div>
