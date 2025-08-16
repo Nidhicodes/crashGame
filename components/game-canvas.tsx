@@ -243,8 +243,8 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
       <canvas
         ref={canvasRef}
         width={800}
-        height={400}
-        className="w-full h-64 bg-gradient-to-br from-black via-purple-950/50 to-black rounded-xl border border-purple-500/30 shadow-2xl shadow-purple-500/20"
+        height={482}
+        className="w-full h-auto bg-gradient-to-br from-black via-purple-950/50 to-black rounded-xl border border-purple-500/30 shadow-2xl shadow-purple-500/20"
       />
       {/* Decorative border glow */}
       <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 via-transparent to-purple-500/20 pointer-events-none"></div>
