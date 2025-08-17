@@ -85,28 +85,13 @@ export function GameStatus({ gameState }: GameStatusProps) {
           )
         })()}
 
-        {/* Enhanced Active Players */}
-        <div className="mt-6">
-          <div className="flex items-center gap-3 mb-3">
-            <TrendingUp className="w-5 h-5 text-purple-400" />
-            <span className="text-lg font-medium text-purple-200">
-              Active Players ({gameState.activePlayers.length})
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {gameState.activePlayers.slice(0, 10).map((player, index) => (
-              <Badge
-                key={index}
-                className="bg-purple-900/40 text-purple-200 border-purple-500/30 backdrop-blur-sm"
-              >
-                {player.name}: {player.bet} pts @ {player.targetMultiplier}×
-              </Badge>
-            ))}
-            {gameState.activePlayers.length > 10 && (
-              <Badge className="bg-purple-800/40 text-purple-300 border-purple-500/30">
-                +{gameState.activePlayers.length - 10} more
-              </Badge>
-            )}
+        {/* Game Phase Information */}
+        <div className="text-center">
+          <div className="text-purple-200 text-sm">
+            {gameState.phase === "betting" && "🎯 Place your bets now!"}
+            {gameState.phase === "flying" && "🚀 Game in progress - Watch the multiplier grow!"}
+            {gameState.phase === "crashed" && "💥 Round ended - Wait for the next game!"}
+            {gameState.phase === "waiting" && "⏳ Preparing for the next round..."}
           </div>
         </div>
       </CardContent>
