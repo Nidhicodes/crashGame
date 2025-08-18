@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Coins, Zap, Users, Copy, Gift, TrendingUp, UserCheck, ChevronDown } from "lucide-react"
+import { Coins, Zap, Users, Copy, Gift, TrendingUp, UserCheck, ChevronDown, Medal } from "lucide-react"
+import { Scoreboard } from "@/components/scoreboard"
+
 
 interface PlayerStats {
   tokens: number
@@ -84,7 +86,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
   return (
     <div className="h-96 flex flex-col">
       <Tabs defaultValue="balance" className="h-full flex flex-col">
-        <TabsList className="grid w-full h-fit grid-cols-3 bg-black/40 backdrop-blur-sm border border-purple-500/20 flex-shrink-0 p-1">
+        <TabsList className="grid w-full h-fit grid-cols-3 bg-black/40 backdrop-blur-sm border border-purple-500/20 flex-shrink-0 p-1 g-1">
           <TabsTrigger 
             value="balance" 
             className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
@@ -92,13 +94,15 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
             <Coins className="w-4 h-4 mr-2" />
             Balance
           </TabsTrigger>
+
           <TabsTrigger 
-            value="referrals" 
+            value="leaderboard" 
             className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
           >
-            <Users className="w-4 h-4 mr-2" />
-            Referrals
+            <Medal className="w-2 h-2" />
+            Leaderboard
           </TabsTrigger>
+
           <TabsTrigger 
             value="players" 
             className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
@@ -173,8 +177,9 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
           </Card>
         </TabsContent>
 
+        {/*
         <TabsContent value="referrals" className="flex-1 min-h-0 space-y-6">
-          {/* Referral System */}
+          // Referral System //////////////////
           <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-purple-200">
@@ -183,7 +188,8 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 h-[475px]">
-              {/* Your Referral Code */}
+
+              //////Your Referral Code //////////////
               <div className="space-y-3">
                 <label className="text-sm font-medium text-purple-200">Your Referral Code</label>
                 <div className="flex gap-2">
@@ -206,7 +212,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
                 <p className="text-xs text-purple-400">Share this code to earn 50 points per referral!</p>
               </div>
 
-              {/* Referral Stats */}
+              ///////////// Referral Stats/////////////////// 
               <div className="space-y-2">
                 <div className="flex justify-between items-center p-2 bg-purple-900/20 rounded border border-purple-500/20">
                   <span className="text-purple-300 text-sm">Total Referrals:</span>
@@ -228,7 +234,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
                 </div>
               </div>
 
-              {/* Enter Referral Code */}
+              ////////// Enter Referral Code ////////////////////////////////
               {!referralStats.hasUsedReferralCode && (
                 <div className="pt-4 border-t border-purple-500/20 space-y-3">
                   <label className="text-sm font-medium text-purple-200">Have a referral code?</label>
@@ -263,6 +269,26 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
             </CardContent>
           </Card>
         </TabsContent>
+
+      */}
+
+      <TabsContent value="leaderboard" className="flex-1 min-h-0 space-y-6">
+  <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
+    <CardHeader>
+      <CardTitle className="flex items-center gap-3 text-purple-200">
+         {/* <Medal className="w-2 h-2 mr-2 text-black-300" /> */}
+        🏆 Leaderboard
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="space-y-4 h-[475px] overflow-y-auto">
+      <div className="h-full">
+        <Scoreboard />
+      </div>
+    </CardContent>
+  </Card>
+</TabsContent>
+
+
 
         <TabsContent value="players" className="flex-1 min-h-0 space-y-6">
           {/* Active Players */}
