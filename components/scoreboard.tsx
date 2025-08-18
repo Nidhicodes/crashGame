@@ -55,62 +55,68 @@ export function Scoreboard() {
   }
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-2xl shadow-purple-500/10">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between text-purple-200">
-          <div className="flex items-center gap-3">
-            <Trophy className="w-6 h-6 text-purple-400" />
-            Leaderboard
-            <Badge className="bg-purple-600/20 text-purple-300 border-purple-500/30">Live</Badge>
-          </div>
+   <div className="flex flex-col justify-between h-full">
+  {/* Header */}
+  <div className="flex items-center justify-between text-purple-200 mb-4">
+    <div className="flex items-center gap-2">
+      {/* <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-glow animate-bounce-slow" /> */}
+      <Badge className="bg-gradient-to-r from-purple-700/60 to-purple-500/60 text-purple-100 border border-purple-400/60 rounded-full px-3 py-1 shadow-lg shadow-purple-900/50 font-medium tracking-wide">
+  Live
+</Badge>
+
+    </div>
+
+    <select
+      value={leaderboardType}
+      onChange={(e) => setLeaderboardType(e.target.value)}
+      className="bg-purple-900/40 border border-purple-500/40 text-purple-200 rounded-full px-3 py-1 text-sm shadow-sm focus:ring-2 focus:ring-purple-500 transition"
+    >
+      <option value="all-time">🏅 All Time</option>
+      <option value="daily">⚡ Daily</option>
+      <option value="weekly">📅 Weekly</option>
+    </select>
+  </div>
+
+  {/* Player List */}
+  <div className="space-y-3 flex-1 overflow-y-auto pr-1">
+    {players.map((player) => (
+      <div
+        key={player.id}
+        className="flex items-center justify-between p-4 bg-black/30 backdrop-blur-md rounded-xl border border-purple-500/20 
+                   hover:scale-[1.02] hover:border-purple-400/40 transition-all duration-300 shadow-lg shadow-black/40"
+      >
+        <div className="flex items-center gap-4">
+          <Badge className={`${getRankBadge(player.rank)} text-white min-w-[2.5rem] justify-center shadow-md`}>
+            #{player.rank}
+          </Badge>
+          {getRankIcon(player.rank)}
           <div>
-            <select
-              value={leaderboardType}
-              onChange={(e) => setLeaderboardType(e.target.value)}
-              className="bg-purple-900/40 border-purple-500/30 text-white rounded-md px-2 py-1"
-            >
-              <option value="all-time">All Time</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-            </select>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {players.map((player) => (
-            <div
-              key={player.id}
-              className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-900/20 to-black/20 rounded-lg hover:from-purple-900/30 hover:to-black/30 transition-all duration-300 border border-purple-500/20"
-            >
-              <div className="flex items-center gap-4">
-                <Badge className={`${getRankBadge(player.rank)} text-white min-w-[2.5rem] justify-center shadow-lg`}>
-                  #{player.rank}
-                </Badge>
-                {getRankIcon(player.rank)}
-                <div>
-                  <div className="font-semibold text-white text-lg">{player.name}</div>
-                  <div className="text-sm text-purple-300">
-                    {player.gamesPlayed} games • {player.winRate}% win rate
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <div className="font-bold text-green-400 text-xl">{player.totalWon.toLocaleString()} pts</div>
-                <div className="text-sm text-yellow-400">Best: {player.bestMultiplier}×</div>
-              </div>
+            <div className="font-semibold text-white text-lg tracking-wide">{player.name}</div>
+            <div className="text-xs text-purple-300/80">
+              🎮 {player.gamesPlayed} games • 🏆 {player.winRate}% win rate
             </div>
-          ))}
-        </div>
-
-        <div className="mt-6 p-4 bg-gradient-to-r from-purple-900/30 to-black/30 rounded-lg text-center text-sm text-purple-300 border border-purple-500/20">
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            Rankings update every 5 minutes
           </div>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="text-right">
+          <div className="font-bold text-green-400 text-xl drop-shadow-sm">
+            {player.totalWon.toLocaleString()} pts
+          </div>
+          <div className="text-xs text-yellow-400 font-medium">
+            🔥 Best: {player.bestMultiplier}×
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Footer */}
+  <div className="mt-4 p-4 bg-gradient-to-r from-purple-900/30 to-black/40 rounded-xl text-center text-sm text-purple-300 border border-purple-500/20 shadow-inner">
+    <div className="flex items-center justify-center gap-2">
+      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+      <span className="italic">Rankings refresh every 5 minutes</span>
+    </div>
+  </div>
+</div>
   )
 }
