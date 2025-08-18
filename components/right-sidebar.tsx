@@ -82,7 +82,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
   }
 
   return (
-    <div className="h-64 flex flex-col">
+    <div className="h-96 flex flex-col">
       <Tabs defaultValue="balance" className="h-full flex flex-col">
         <TabsList className="grid w-full h-fit grid-cols-3 bg-black/40 backdrop-blur-sm border border-purple-500/20 flex-shrink-0 p-1">
           <TabsTrigger 
@@ -117,7 +117,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
                 Your Balance
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 h-[475px]">
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 bg-purple-900/20 rounded-lg border border-purple-500/20">
                   <span className="text-purple-300">Tokens:</span>
@@ -182,7 +182,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
                 Referral Rewards
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 h-[475px]">
               {/* Your Referral Code */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-purple-200">Your Referral Code</label>
@@ -273,7 +273,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
                 Active Players ({activePlayers.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 h-[475px]">
               {activePlayers.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="text-purple-300 text-lg mb-2">No Active Players</div>
