@@ -86,28 +86,25 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
   return (
     <div className="h-96 flex flex-col">
       <Tabs defaultValue="balance" className="h-full flex flex-col">
-        <TabsList className="grid w-full h-fit grid-cols-3 bg-black/40 backdrop-blur-sm border border-purple-500/20 flex-shrink-0 p-1 g-1">
+        <TabsList className="grid w-full grid-cols-3 bg-black/40 backdrop-blur-sm border border-purple-500/20 flex-shrink-0 p-0 g-1 rounded-xl ">
           <TabsTrigger 
             value="balance" 
-            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg"
           >
-            <Coins className="w-4 h-4 mr-2" />
             Balance
           </TabsTrigger>
 
           <TabsTrigger 
             value="leaderboard" 
-            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg"
           >
-            <Medal className="w-2 h-2" />
-            Leaderboard
+           Leaderboard
           </TabsTrigger>
 
           <TabsTrigger 
             value="players" 
-            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg"
           >
-            <UserCheck className="w-4 h-4 mr-2" />
             Players
           </TabsTrigger>
         </TabsList>

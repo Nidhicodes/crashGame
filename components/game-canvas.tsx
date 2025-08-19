@@ -225,20 +225,20 @@ export function GameCanvas({ multiplier, phase, crashed,timeLeft}: GameCanvasPro
         ctx.fillStyle = "rgba(239, 68, 68, 0.4)"
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        // Crash text with enhanced styling
-        ctx.fillStyle = "#ef4444"
-        ctx.font = "bold 56px Arial"
-        ctx.textAlign = "center"
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)"
-        ctx.lineWidth = 3
-        ctx.strokeText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
-        ctx.fillText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
+        // // Crash text with enhanced styling
+        // ctx.fillStyle = "#ef4444"
+        // ctx.font = "bold 56px Arial"
+        // ctx.textAlign = "center"
+        // ctx.strokeStyle = "rgba(0, 0, 0, 0.8)"
+        // ctx.lineWidth = 3
+        // ctx.strokeText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
+        // ctx.fillText("💥 !", canvas.width / 2, canvas.height / 2)
 
-        // Crash glow effect
-        ctx.shadowColor = "#ef4444"
-        ctx.shadowBlur = 20
-        ctx.fillText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
-        ctx.shadowBlur = 0
+        // // Crash glow effect
+        // ctx.shadowColor = "#ef4444"
+        // ctx.shadowBlur = 20
+        // ctx.fillText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
+        // ctx.shadowBlur = 0
       }
     }
 
@@ -265,7 +265,7 @@ export function GameCanvas({ multiplier, phase, crashed,timeLeft}: GameCanvasPro
       <canvas
         ref={canvasRef}
         width={800}
-        height={482}
+        height={350}
         className="w-full h-auto bg-gradient-to-br from-black via-purple-950/50 to-black rounded-xl border border-purple-500/30 shadow-2xl shadow-purple-500/20"
       />
       {/* Decorative border glow */}
