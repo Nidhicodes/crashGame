@@ -31,9 +31,6 @@ export function BottomTabs({ gameHistory }: BottomTabsProps) {
             📊 Recent Games
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="leaderboard" className="w-full">
-          <Scoreboard />
-        </TabsContent>
         <TabsContent value="recent" className="w-full">
           <GameHistory history={gameHistory} detailed />
         </TabsContent>
