@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, Crown } from "lucide-react"
 
-interface GameState {
+export interface GameState {
   phase: "betting" | "flying" | "crashed" | "waiting"
   currentMultiplier: number
   timeLeft: number

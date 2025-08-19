@@ -35,7 +35,7 @@ export function IntegratedGameArena({
   return (
     <div className="h-full flex flex-col">
       <Card className="flex-1 bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-1">
           <CardTitle className="text-purple-200 text-center text-xl">
             Crash Game Arena
           </CardTitle>
@@ -48,17 +48,18 @@ export function IntegratedGameArena({
               multiplier={gameState.currentMultiplier}
               phase={gameState.phase}
               crashed={gameState.phase === "crashed"}
+              timeLeft={gameState.timeLeft}
             />
           </div>
           
-          {/* Game Status - Compact display */}
+          {/* Game Status - Compact display
           <div className="flex-shrink-0">
             <GameStatus gameState={gameState} />
-          </div>
+          </div> */}
           
           {/* Betting Controls - Fixed height section */}
           <div className="flex-shrink-0 bg-purple-900/20 rounded-lg border border-purple-500/20 p-4">
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div className="text-center">
                 <h3 className="text-purple-200 font-semibold text-lg">Place Your Bet</h3>
               </div>
