@@ -48,13 +48,14 @@ export function IntegratedGameArena({
               multiplier={gameState.currentMultiplier}
               phase={gameState.phase}
               crashed={gameState.phase === "crashed"}
+              timeLeft={gameState.timeLeft}
             />
           </div>
           
-          {/* Game Status - Compact display */}
+          {/* Game Status - Compact display
           <div className="flex-shrink-0">
             <GameStatus gameState={gameState} />
-          </div>
+          </div> */}
           
           {/* Betting Controls - Fixed height section */}
           <div className="flex-shrink-0 bg-purple-900/20 rounded-lg border border-purple-500/20 p-4">

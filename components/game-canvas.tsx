@@ -2,15 +2,23 @@
 
 import { useEffect, useRef } from "react"
 
+
 interface GameCanvasProps {
   multiplier: number
   phase: "betting" | "flying" | "crashed" | "waiting"
   crashed: boolean
+  timeLeft:number
 }
 
-export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
+export function GameCanvas({ multiplier, phase, crashed,timeLeft}: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number>(0)
+  const timeLeftRef = useRef(timeLeft)
+
+  // keep latest value in ref
+  useEffect(() => {
+    timeLeftRef.current = timeLeft
+  }, [timeLeft])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -51,8 +59,15 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
         ctx.fillStyle = `rgba(168, 85, 247, ${alpha * 0.8})`
         ctx.font = "16px Arial"
         ctx.fillText("Place your bets now!", canvas.width / 2, canvas.height / 2 + 20)
+
+        ctx.fillStyle = '#ffffff'
+        ctx.font = " 14px Arial"
+        ctx.strokeText(`Place your bets ${timeLeft}s `, canvas.width / 2, canvas.height / 2 + 60)
+        ctx.fillText(`Place your bets ${timeLeft}s `, canvas.width / 2, canvas.height / 2 + 60)
         return
       }
+
+     
 
       // Enhanced grid with purple theme
       ctx.strokeStyle = "rgba(147, 51, 234, 0.3)"
@@ -180,6 +195,13 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
       ctx.strokeText(`${multiplier.toFixed(2)}×`, canvas.width / 2, 70)
       ctx.fillText(`${multiplier.toFixed(2)}×`, canvas.width / 2, 70)
 
+     if (phase === "waiting" && timeLeft !== undefined) {
+      ctx.fillStyle = "#ffffff"
+      ctx.font = " 14px Arial"
+      ctx.textAlign = "center"
+      ctx.fillText(`Next round in ${timeLeft}s`, canvas.width / 2, canvas.height - 50)
+    }
+
       // Enhanced crash effect
       if (crashed) {
         // Explosion effect
@@ -236,7 +258,7 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [multiplier, phase, crashed])
+  }, [multiplier, phase, crashed,timeLeft])
 
   return (
     <div className="relative">

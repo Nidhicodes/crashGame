@@ -45,6 +45,7 @@ export function LeftSidebarTabs({
 
   return (
     <div className="h-full flex flex-col">
+      
       <Tabs defaultValue="stats" className="flex flex-col">
         <TabsList className="grid w-full grid-cols-2 bg-black/40 backdrop-blur-sm border border-purple-500/20 rounded-xl p-1 flex-shrink-0">
           <TabsTrigger value="stats" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg">
