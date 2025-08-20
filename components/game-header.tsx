@@ -3,22 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Rocket, Zap } from "lucide-react";
 import { ReferralDialog } from "./Dialogs/ReferralDialog";
-import axios from "axios"
-import { toast } from "sonner"
-interface Wallet {
-  address: string | null;
-  balance: string | null;
-  chainId: number | null;
-  gasPrice: string | null;
-  clientVersion: string | null;
-  txCount: number | null;
-  network: string | null;
-}
+import { toast } from "sonner";
+import Cookies from "js-cookie";
+import { useWallet } from "@/hooks/use-wallet";
 
 interface FloatingNavbarProps {
-  isConnected: boolean;
-  wallet: Wallet | null;
-  onConnectWallet: () => Promise<string>; // make it async if wallet connection is async
   referralCode: string;
   referralStats: {
     totalReferrals: number;
@@ -28,37 +17,20 @@ interface FloatingNavbarProps {
   };
 }
 
-export function FloatingNavbar({
-  isConnected,
-  wallet,
-  onConnectWallet,
-  referralCode,
-  referralStats,
-}: FloatingNavbarProps) {
+export function FloatingNavbar({ referralCode, referralStats }: FloatingNavbarProps) {
+  const { wallet, isConnected, isConnecting, connectWallet } = useWallet();
 
   const handleConnectAndLogin = async () => {
-  try {
-    const walletAddress = await onConnectWallet(); // get address from connectWallet
-    if (!walletAddress) {
-      alert("Wallet address not found!");
-      return;
+    try {
+      await connectWallet(); // will handle QSafe + server-side JWT login
+      const token = Cookies.get("token");
+      if (token) toast.success("User logged in!");
+      else toast.error("Login failed, no token received");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to connect wallet or log in.");
     }
-
-    const response = await axios.post(
-      "http://localhost:5000/api/auth",
-      { walletAddress },
-      { withCredentials: true, headers: { "Content-Type": "application/json" } }
-    );
-
-    console.log("Logged in:", response.data);
-    toast("User Logged in!")
-  } catch (err) {
-    console.error(err);
-    alert("Failed to connect wallet or log in.");
-  }
-};
-
-
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-3 backdrop-blur-md bg-black/70 border-b border-purple-500/20 shadow-lg shadow-purple-500/25">
@@ -80,10 +52,11 @@ export function FloatingNavbar({
         {!isConnected ? (
           <Button
             onClick={handleConnectAndLogin}
+            disabled={isConnecting}
             className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg shadow-purple-500/25 border border-purple-500/20"
           >
             <Zap className="w-4 h-4 mr-2" />
-            Connect Wallet
+            {isConnecting ? "Connecting..." : "Connect Wallet"}
           </Button>
         ) : (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-600/20 rounded-lg border border-purple-500/30">
