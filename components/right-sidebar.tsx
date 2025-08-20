@@ -111,7 +111,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
 
         <TabsContent value="balance" className="flex-1 min-h-0 space-y-6">
           {/* Player Stats */}
-          <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
+          <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10 md:h-[40.625rem] h-auto">
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-purple-200">
                 <Coins className="w-6 h-6 text-purple-400" />
@@ -270,7 +270,7 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
       */}
 
       <TabsContent value="leaderboard" className="flex-1 min-h-0 space-y-6">
-  <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
+  <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10 md:h-[40.625rem] h-auto">
     <CardHeader>
       <CardTitle className="flex items-center gap-3 text-purple-200">
          {/* <Medal className="w-2 h-2 mr-2 text-black-300" /> */}
@@ -288,144 +288,95 @@ export function RightSidebar({ playerStats, gameState, onConvertTokens, onPlaceB
 
 
         <TabsContent value="players" className="flex-1 min-h-0 space-y-6">
-          {/* Active Players */}
-          <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-purple-200">
-                <UserCheck className="w-6 h-6 text-purple-400" />
-                Active Players ({activePlayers.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 h-[475px]">
-              {activePlayers.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-purple-300 text-lg mb-2">No Active Players</div>
-                  <div className="text-purple-400 text-sm">Be the first to place a bet!</div>
-                </div>
-              ) : (
-                <>
-                  {/* Players List with Smooth Animation */}
-                  <div 
-                    className={`
-                      transition-all duration-500 ease-in-out relative
-                      ${showAllPlayers ? 'h-64' : 'h-auto'}
-                    `}
-                  >
-                    {!showAllPlayers ? (
-                      // Show first 5 players with smooth transition
-                      <div className="space-y-3 transition-all duration-300">
-                        {displayedPlayers.map((player, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between p-3 bg-purple-900/20 rounded-lg border border-purple-500/20 transform transition-all duration-300 opacity-100"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                {player.name.charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <div className="text-white font-medium">{player.name}</div>
-                                <div className="text-purple-300 text-xs">Target: {player.targetMultiplier.toFixed(2)}×</div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-green-400 font-bold">{player.bet} pts</div>
-                              <div className="text-purple-300 text-xs">
-                                Win: {(player.bet * gameState.currentMultiplier).toFixed(1)} pts
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      // Show all players in custom scrollable area with vignette
-                      <div className="relative h-64 transition-all duration-500 ease-in-out">
-                        {/* Custom scroll area without visible scrollbar */}
-                        <div 
-                          className="h-full overflow-y-auto scrollbar-none hover:scrollbar-thin scrollbar-track-transparent scrollbar-thumb-purple-500/30"
-                          style={{
-                            scrollbarWidth: 'none',
-                            msOverflowStyle: 'none',
-                          }}
-                        >
-                          <style jsx>{`
-                            div::-webkit-scrollbar {
-                              display: none;
-                            }
-                          `}</style>
-                          <div className="space-y-3 p-1">
-                            {activePlayers.map((player, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center justify-between p-3 bg-purple-900/20 rounded-lg border border-purple-500/20 transform transition-all duration-300 opacity-100"
-                                style={{
-                                  animationDelay: `${index * 50}ms`,
-                                }}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                    {player.name.charAt(0).toUpperCase()}
-                                  </div>
-                                  <div>
-                                    <div className="text-white font-medium">{player.name}</div>
-                                    <div className="text-purple-300 text-xs">Target: {player.targetMultiplier.toFixed(2)}×</div>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <div className="text-green-400 font-bold">{player.bet} pts</div>
-                                  <div className="text-purple-300 text-xs">
-                                    Win: {(player.bet * gameState.currentMultiplier).toFixed(1)} pts
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {/* Vignette effect at bottom to indicate scrollability */}
-                        <div 
-                          className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
-                          style={{
-                            background: 'linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%)',
-                          }}
-                        />
-                        
-                        {/* Subtle gradient border at top for visual separation */}
-                        <div 
-                          className="absolute top-0 left-0 right-0 h-4 pointer-events-none"
-                          style={{
-                            background: 'linear-gradient(to bottom, rgba(147, 51, 234, 0.1) 0%, transparent 100%)',
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
+      {/* Active Players */}
+      <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10 md:h-[40.625rem] h-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 text-purple-200">
+            <UserCheck className="w-6 h-6 text-purple-400" />
+            Active Players ({activePlayers?.length ?? 0})
+          </CardTitle>
+        </CardHeader>
 
-                  {/* Show More/Less Button */}
-                  {activePlayers.length > 5 && (
-                    <div className="pt-2">
-                      <Button
-                        onClick={() => setShowAllPlayers(!showAllPlayers)}
-                        variant="outline"
-                        size="sm"
-                        className="w-full bg-purple-900/20 border-purple-500/30 text-purple-300 hover:bg-purple-800/30 hover:border-purple-500/50 transition-all duration-300"
-                      >
-                        <div className="flex items-center justify-center">
-                          <ChevronDown className={`w-4 h-4 mr-2 transition-transform duration-300 ${showAllPlayers ? 'rotate-180' : ''}`} />
-                          {showAllPlayers ? (
-                            'Show Less'
-                          ) : (
-                            `Show All ${activePlayers.length} Players`
-                          )}
+        <CardContent className="space-y-4 h-[475px]">
+          {(!activePlayers || activePlayers.length === 0) ? (
+            <div className="text-center py-8">
+              <div className="text-purple-300 text-lg mb-2">No Active Players</div>
+              <div className="text-purple-400 text-sm">Be the first to place a bet!</div>
+            </div>
+          ) : (
+            <>
+              {/* Single scroll container: collapsed => limited height, expanded => larger height */}
+              <div
+                className={`
+                  relative transition-all duration-300 ease-in-out
+                  overflow-hidden
+                  ${showAllPlayers ? 'max-h-[420px]' : 'max-h-64'}
+                `}
+              >
+                {/* Scroll area: always present, will be scrollable when content exceeds max-h */}
+                <div
+                  className="h-full overflow-y-auto p-1 space-y-3 scrollbar-none hover:scrollbar-thin scrollbar-track-transparent scrollbar-thumb-purple-500/30"
+                  style={{
+                    msOverflowStyle: 'none',
+                    scrollbarWidth: 'none',
+                  }}
+                >
+                  <style jsx>{`
+                    /* hide webkit scrollbar while still allowing scroll */
+                    .scrollbar-none::-webkit-scrollbar { display: none; }
+                  `}</style>
+
+                  {/* Render collapsed list (first 5) or full list depending on state */}
+                  {(showAllPlayers ? activePlayers : displayedPlayers).map((player, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-purple-900/20 rounded-lg border border-purple-500/20 transform transition-all duration-300 opacity-100"
+                      style={{ animationDelay: `${index * 30}ms` }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                          {player.name?.charAt(0).toUpperCase()}
                         </div>
-                      </Button>
+                        <div>
+                          <div className="text-white font-medium">{player.name}</div>
+                          <div className="text-purple-300 text-xs">Target: {player.targetMultiplier.toFixed(2)}×</div>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="text-green-400 font-bold">{player.bet} pts</div>
+                        <div className="text-purple-300 text-xs">
+                          Win: {(player.bet * (gameState?.currentMultiplier ?? 1)).toFixed(1)} pts
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </>
+                  ))}
+                </div>
+              </div>
+
+              {/* Show More/Less Button */}
+              {activePlayers.length > 5 && (
+                <div className="pt-2">
+                  <Button
+                    onClick={() => setShowAllPlayers(prev => !prev)}
+                    variant="outline"
+                    size="sm"
+                    className="w-full bg-purple-900/20 border-purple-500/30 text-purple-300 hover:bg-purple-800/30 hover:border-purple-500/50 transition-all duration-300"
+                  >
+                    <div className="flex items-center justify-center">
+                      <ChevronDown
+                        className={`w-4 h-4 mr-2 transition-transform duration-300 ease-in-out ${showAllPlayers ? 'rotate-180' : ''}`}
+                      />
+                      {showAllPlayers ? 'Show Less' : `Show All ${activePlayers.length} Players`}
+                    </div>
+                  </Button>
+                </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </TabsContent>
       </Tabs>
     </div>
   )

@@ -1,7 +1,6 @@
 "use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Scoreboard } from "@/components/scoreboard"
 import { GameHistory } from "@/components/game-history"
 
 interface GameResult {
@@ -18,20 +17,15 @@ interface BottomTabsProps {
 
 export function BottomTabs({ gameHistory }: BottomTabsProps) {
   return (
-    <div className="w-full">
+    <div className="w-full md:mt-0 mt-60">
       <Tabs defaultValue="leaderboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 bg-black/40 backdrop-blur-sm border border-purple-500/20 mb-6">
-          {/* <TabsTrigger
-            value="leaderboard"
-            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white"
-          >
-            🏆 Leaderboard
-          </TabsTrigger> */}
-          <TabsTrigger value="recent" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-center">
+        <TabsList className="grid w-full grid-cols-1 bg-black/40 backdrop-blur-sm border border-purple-500/20 mb-2">
+    
+          <TabsTrigger value="recent" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-cente">
             📊 Recent Games
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="recent" className="w-full">
+        <TabsContent value="recent" className="w-full" >
           <GameHistory history={gameHistory} detailed />
         </TabsContent>
       </Tabs>

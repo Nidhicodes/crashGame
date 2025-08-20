@@ -35,7 +35,7 @@ export function GameHistory({ history, detailed = false }: GameHistoryProps) {
 
   if (detailed) {
     return (
-      <Card className="bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-2xl shadow-purple-500/10">
+      <Card className=" md:mt-0 mt-2  bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-2xl shadow-purple-500/10">
         <CardHeader>
           <CardTitle className="flex items-center gap-3 text-purple-200">
             <History className="w-6 h-6 text-purple-400" />
