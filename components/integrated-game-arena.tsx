@@ -43,7 +43,7 @@ export function IntegratedGameArena({
         
         <CardContent className="flex-1 flex flex-col space-y-4 p-4">
           {/* Game Canvas - Takes up most available space */}
-          <div className="flex-1 min-h-[280px] bg-black/60 rounded-lg border border-purple-500/30 overflow-hidden">
+          <div className="flex-1 md:min-h-[280px] bg-black/60 rounded-lg border border-purple-500/30 overflow-hidden">
             <GameCanvas
               multiplier={gameState.currentMultiplier}
               phase={gameState.phase}

@@ -19,7 +19,7 @@ export function GameContent({
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
         {/* Left Sidebar - 1 column, same height as main area */}
         <aside className="lg:col-span-1 h-full">
-          <div className="h-screen">
+          <div className="md:h-screen">
             {leftSidebar}
           </div>
         </aside>

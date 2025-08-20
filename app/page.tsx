@@ -36,7 +36,7 @@ export default function CrashGame() {
             />
 
             {/* Add top padding so content does not overlap navbar */}
-            <div className="pt-24">
+            <div className="pt-24 ">
               <GameContent
                 leftSidebar={
                   <LeftSidebarTabs

@@ -44,7 +44,7 @@ export function LeftSidebarTabs({
     : "0.00"
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col">
       
       <Tabs defaultValue="stats" className="flex flex-col">
         <TabsList className="grid w-full grid-cols-2 bg-black/40 backdrop-blur-sm border border-purple-500/20 rounded-xl p-1 flex-shrink-0">
@@ -58,7 +58,7 @@ export function LeftSidebarTabs({
 
         {/* Your Stats */}
         <TabsContent value="stats" className="flex-1 min-h-0">
-          <Card className="h-[550px] bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
+          <Card className="md:h-[40.625rem] h-72 bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
             <CardHeader className="flex-shrink-0">
               <CardTitle className="flex items-center gap-3 text-purple-200">
                 <Trophy className="w-6 h-6 text-purple-400" />
@@ -88,7 +88,7 @@ export function LeftSidebarTabs({
 
         {/* Last 20 Rounds */}
         <TabsContent value="rounds" className="flex-1 min-h-0">
-          <Card className="h-[550px] bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
+          <Card className="md:h-[40.625rem] h-auto bg-black/40 backdrop-blur-sm border border-purple-500/20 shadow-xl shadow-purple-500/10">
             <CardHeader className="flex-shrink-0">
               <CardTitle className="flex items-center gap-3 text-purple-200">
                 <History className="w-6 h-6 text-purple-400" />
