@@ -2,15 +2,23 @@
 
 import { useEffect, useRef } from "react"
 
+
 interface GameCanvasProps {
   multiplier: number
   phase: "betting" | "flying" | "crashed" | "waiting"
   crashed: boolean
+  timeLeft:number
 }
 
-export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
+export function GameCanvas({ multiplier, phase, crashed,timeLeft}: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number>(0)
+  const timeLeftRef = useRef(timeLeft)
+
+  // keep latest value in ref
+  useEffect(() => {
+    timeLeftRef.current = timeLeft
+  }, [timeLeft])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -51,8 +59,15 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
         ctx.fillStyle = `rgba(168, 85, 247, ${alpha * 0.8})`
         ctx.font = "16px Arial"
         ctx.fillText("Place your bets now!", canvas.width / 2, canvas.height / 2 + 20)
+
+        ctx.fillStyle = '#ffffff'
+        ctx.font = " 14px Arial"
+        ctx.strokeText(`Place your bets ${timeLeft}s `, canvas.width / 2, canvas.height / 2 + 60)
+        ctx.fillText(`Place your bets ${timeLeft}s `, canvas.width / 2, canvas.height / 2 + 60)
         return
       }
+
+     
 
       // Enhanced grid with purple theme
       ctx.strokeStyle = "rgba(147, 51, 234, 0.3)"
@@ -180,6 +195,13 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
       ctx.strokeText(`${multiplier.toFixed(2)}×`, canvas.width / 2, 70)
       ctx.fillText(`${multiplier.toFixed(2)}×`, canvas.width / 2, 70)
 
+     if (phase === "waiting" && timeLeft !== undefined) {
+      ctx.fillStyle = "#ffffff"
+      ctx.font = " 14px Arial"
+      ctx.textAlign = "center"
+      ctx.fillText(`Next round in ${timeLeft}s`, canvas.width / 2, canvas.height - 50)
+    }
+
       // Enhanced crash effect
       if (crashed) {
         // Explosion effect
@@ -203,20 +225,20 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
         ctx.fillStyle = "rgba(239, 68, 68, 0.4)"
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        // Crash text with enhanced styling
-        ctx.fillStyle = "#ef4444"
-        ctx.font = "bold 56px Arial"
-        ctx.textAlign = "center"
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)"
-        ctx.lineWidth = 3
-        ctx.strokeText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
-        ctx.fillText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
+        // // Crash text with enhanced styling
+        // ctx.fillStyle = "#ef4444"
+        // ctx.font = "bold 56px Arial"
+        // ctx.textAlign = "center"
+        // ctx.strokeStyle = "rgba(0, 0, 0, 0.8)"
+        // ctx.lineWidth = 3
+        // ctx.strokeText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
+        // ctx.fillText("💥 !", canvas.width / 2, canvas.height / 2)
 
-        // Crash glow effect
-        ctx.shadowColor = "#ef4444"
-        ctx.shadowBlur = 20
-        ctx.fillText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
-        ctx.shadowBlur = 0
+        // // Crash glow effect
+        // ctx.shadowColor = "#ef4444"
+        // ctx.shadowBlur = 20
+        // ctx.fillText("💥 CRASHED!", canvas.width / 2, canvas.height / 2)
+        // ctx.shadowBlur = 0
       }
     }
 
@@ -236,15 +258,15 @@ export function GameCanvas({ multiplier, phase, crashed }: GameCanvasProps) {
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [multiplier, phase, crashed])
+  }, [multiplier, phase, crashed,timeLeft])
 
   return (
     <div className="relative">
       <canvas
         ref={canvasRef}
         width={800}
-        height={400}
-        className="w-full h-64 bg-gradient-to-br from-black via-purple-950/50 to-black rounded-xl border border-purple-500/30 shadow-2xl shadow-purple-500/20"
+        height={350}
+        className="w-full h-auto bg-gradient-to-br from-black via-purple-950/50 to-black rounded-xl border border-purple-500/30 shadow-2xl shadow-purple-500/20"
       />
       {/* Decorative border glow */}
       <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 via-transparent to-purple-500/20 pointer-events-none"></div>
