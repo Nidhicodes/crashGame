@@ -17,22 +17,22 @@ export function GameContent({
     <>
       {/* Main Content Grid with equal heights */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
-        {/* Left Sidebar - 1 column, same height as main area */}
-        <aside className="lg:col-span-1 h-full">
-          <div className="md:h-screen">
-            {leftSidebar}
-          </div>
-        </aside>
-           
-        {/* Main Game Area - 3 columns */}
-        <main className="lg:col-span-3 h-full">
+        {/* Main Game Area - First on mobile, middle on desktop */}
+        <main className="order-1 lg:order-2 lg:col-span-3 h-full">
           <div className="h-full">
             {mainContent}
           </div>
         </main>
 
-        {/* Right Sidebar - 1 column, same height as main area */}
-        <aside className="lg:col-span-1 h-full">
+        {/* Left Sidebar - Second on mobile, first on desktop */}
+        <aside className="order-2 lg:order-1 lg:col-span-1 h-full">
+          <div className="md:h-screen">
+            {leftSidebar}
+          </div>
+        </aside>
+
+        {/* Right Sidebar - Always last */}
+        <aside className="order-3 lg:order-3 lg:col-span-1 h-full">
           <div className="h-full">
             {rightSidebar}
           </div>
@@ -45,4 +45,4 @@ export function GameContent({
       </div>
     </>
   )
-} 
+}
